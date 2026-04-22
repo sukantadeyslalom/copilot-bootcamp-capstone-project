@@ -6,8 +6,6 @@ capabilities and manage consulting expertise across the organization.
 """
 
 import json
-import base64
-import hashlib
 import hmac
 import os
 import secrets
@@ -57,15 +55,12 @@ def save_capabilities(updated_capabilities):
 
 
 def verify_password(password: str, practice_lead: dict):
-    salt = base64.b64decode(practice_lead["password_salt"])
-    expected_hash = base64.b64decode(practice_lead["password_hash"])
-    candidate_hash = hashlib.pbkdf2_hmac(
-        "sha256",
-        password.encode("utf-8"),
-        salt,
-        200000
-    )
-    return hmac.compare_digest(candidate_hash, expected_hash)
+    expected_password = os.getenv(practice_lead["password_env_var"])
+
+    if not expected_password:
+        return False
+
+    return hmac.compare_digest(password, expected_password)
 
 
 def build_session_user(username: str, practice_lead: dict):
@@ -79,6 +74,7 @@ def build_session_user(username: str, practice_lead: dict):
 def get_authenticated_practice_lead(request: Request):
     session_token = request.cookies.get(session_cookie_name)
     username = auth_sessions.get(session_token)
+    practice_leads = load_practice_leads()
 
     if not username or username not in practice_leads:
         raise HTTPException(status_code=401, detail="Practice lead authentication required")
@@ -95,9 +91,6 @@ def can_manage_capability(practice_lead: dict, capability: dict):
 app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
           "static")), name="static")
 
-capabilities = load_capabilities()
-practice_leads = load_practice_leads()
-
 
 @app.get("/")
 def root():
@@ -106,13 +99,14 @@ def root():
 
 @app.get("/capabilities")
 def get_capabilities():
-    return capabilities
+    return load_capabilities()
 
 
 @app.get("/auth/session")
 def get_auth_session(request: Request):
     session_token = request.cookies.get(session_cookie_name)
     username = auth_sessions.get(session_token)
+    practice_leads = load_practice_leads()
 
     if not username or username not in practice_leads:
         return {"authenticated": False}
@@ -125,6 +119,7 @@ def get_auth_session(request: Request):
 
 @app.post("/auth/login")
 def login(login_request: LoginRequest, response: Response):
+    practice_leads = load_practice_leads()
     practice_lead = practice_leads.get(login_request.username)
 
     if not practice_lead or not verify_password(login_request.password, practice_lead):
@@ -160,6 +155,8 @@ def logout(request: Request, response: Response):
 @app.post("/capabilities/{capability_name}/register")
 def register_for_capability(capability_name: str, email: str):
     """Register a consultant for a capability"""
+    capabilities = load_capabilities()
+
     # Validate capability exists
     if capability_name not in capabilities:
         raise HTTPException(status_code=404, detail="Capability not found")
@@ -183,6 +180,8 @@ def register_for_capability(capability_name: str, email: str):
 @app.delete("/capabilities/{capability_name}/unregister")
 def unregister_from_capability(capability_name: str, email: str, request: Request):
     """Unregister a consultant from a capability"""
+    capabilities = load_capabilities()
+
     # Validate capability exists
     if capability_name not in capabilities:
         raise HTTPException(status_code=404, detail="Capability not found")

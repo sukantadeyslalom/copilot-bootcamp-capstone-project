@@ -1,15 +1,13 @@
 {
   "practicelead-tech": {
-    "password_salt": "OKeS5wTB/hROsu5GicBzSQ==",
-    "password_hash": "9LRNFK24zhixT7OPqJb4vyfVRi8s6prfll22e+CZB8I=",
+    "password_env_var": "PRACTICELEAD_TECH_PASSWORD",
     "role": "Practice Lead",
     "practice_areas": [
       "Technology"
     ]
   },
   "practicelead-strategy": {
-    "password_salt": "SaiKiGlF47n1drW8aROcBQ==",
-    "password_hash": "UM7yvjenXbF6OJ4r6iqMeOJJ8hdIv4ZJdAEm72hxFZg=",
+    "password_env_var": "PRACTICELEAD_STRATEGY_PASSWORD",
     "role": "Practice Lead",
     "practice_areas": [
       "Strategy",

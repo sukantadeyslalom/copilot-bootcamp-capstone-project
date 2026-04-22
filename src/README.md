@@ -67,12 +67,14 @@ All data is currently stored in memory for this learning exercise. In a producti
 
 Capability definitions are stored in `capabilities.json` alongside the API code. Update that file to add or edit capabilities without changing `app.py`.
 
-Practice lead credentials are stored in `practice_leads.json`. The app now requires practice lead authentication before consultants can be removed from a capability.
+Practice lead identities are stored in `practice_leads.json`. Passwords are read from environment variables named in that file, so secrets do not need to be committed to the repository.
 
-Demo practice lead accounts for local testing:
+For local testing, set the password environment variables before starting the app. Example:
 
-- Username: `practicelead-tech` Password: `slalom-tech-lead`
-- Username: `practicelead-strategy` Password: `slalom-strategy-lead`
+- `export PRACTICELEAD_TECH_PASSWORD='choose-a-strong-password'`
+- `export PRACTICELEAD_STRATEGY_PASSWORD='choose-a-strong-password'`
+
+Capability and practice lead configuration is loaded from disk on each request, so updates to those JSON files are reflected without restarting the app.
 
 ## Future Enhancements
 
