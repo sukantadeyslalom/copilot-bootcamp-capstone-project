@@ -9,7 +9,9 @@ import json
 import hmac
 import os
 import secrets
+import tempfile
 from pathlib import Path
+from threading import RLock
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
@@ -24,6 +26,7 @@ capabilities_file = current_dir / "capabilities.json"
 practice_leads_file = current_dir / "practice_leads.json"
 session_cookie_name = "slalom_session"
 auth_sessions = {}
+config_lock = RLock()
 
 
 class LoginRequest(BaseModel):
@@ -32,14 +35,24 @@ class LoginRequest(BaseModel):
 
 
 def load_json_file(file_path: Path):
-    with file_path.open("r", encoding="utf-8") as file_handle:
-        return json.load(file_handle)
+    with config_lock:
+        with file_path.open("r", encoding="utf-8") as file_handle:
+            return json.load(file_handle)
 
 
 def save_json_file(file_path: Path, data):
-    with file_path.open("w", encoding="utf-8") as file_handle:
-        json.dump(data, file_handle, indent=2)
-        file_handle.write("\n")
+    with config_lock:
+        with tempfile.NamedTemporaryFile(
+            "w",
+            encoding="utf-8",
+            dir=file_path.parent,
+            delete=False,
+        ) as file_handle:
+            json.dump(data, file_handle, indent=2)
+            file_handle.write("\n")
+            temporary_path = Path(file_handle.name)
+
+        os.replace(temporary_path, file_path)
 
 
 def load_capabilities():
@@ -57,8 +70,8 @@ def save_capabilities(updated_capabilities):
 def verify_password(password: str, practice_lead: dict):
     expected_password = os.getenv(practice_lead["password_env_var"])
 
-    if not expected_password:
-        return False
+    if expected_password is None:
+        return None
 
     return hmac.compare_digest(password, expected_password)
 
@@ -122,7 +135,18 @@ def login(login_request: LoginRequest, response: Response):
     practice_leads = load_practice_leads()
     practice_lead = practice_leads.get(login_request.username)
 
-    if not practice_lead or not verify_password(login_request.password, practice_lead):
+    if not practice_lead:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    password_is_valid = verify_password(login_request.password, practice_lead)
+
+    if password_is_valid is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Practice lead authentication is not configured on the server"
+        )
+
+    if not password_is_valid:
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     session_token = secrets.token_urlsafe(32)
@@ -155,55 +179,59 @@ def logout(request: Request, response: Response):
 @app.post("/capabilities/{capability_name}/register")
 def register_for_capability(capability_name: str, email: str):
     """Register a consultant for a capability"""
-    capabilities = load_capabilities()
+    with config_lock:
+        capabilities = load_capabilities()
 
-    # Validate capability exists
-    if capability_name not in capabilities:
-        raise HTTPException(status_code=404, detail="Capability not found")
+        # Validate capability exists
+        if capability_name not in capabilities:
+            raise HTTPException(status_code=404, detail="Capability not found")
 
-    # Get the specific capability
-    capability = capabilities[capability_name]
+        # Get the specific capability
+        capability = capabilities[capability_name]
 
-    # Validate consultant is not already registered
-    if email in capability["consultants"]:
-        raise HTTPException(
-            status_code=400,
-            detail="Consultant is already registered for this capability"
-        )
+        # Validate consultant is not already registered
+        if email in capability["consultants"]:
+            raise HTTPException(
+                status_code=400,
+                detail="Consultant is already registered for this capability"
+            )
 
-    # Add consultant
-    capability["consultants"].append(email)
-    save_capabilities(capabilities)
+        # Add consultant
+        capability["consultants"].append(email)
+        save_capabilities(capabilities)
+
     return {"message": f"Registered {email} for {capability_name}"}
 
 
 @app.delete("/capabilities/{capability_name}/unregister")
 def unregister_from_capability(capability_name: str, email: str, request: Request):
     """Unregister a consultant from a capability"""
-    capabilities = load_capabilities()
+    with config_lock:
+        capabilities = load_capabilities()
 
-    # Validate capability exists
-    if capability_name not in capabilities:
-        raise HTTPException(status_code=404, detail="Capability not found")
+        # Validate capability exists
+        if capability_name not in capabilities:
+            raise HTTPException(status_code=404, detail="Capability not found")
 
-    # Get the specific capability
-    capability = capabilities[capability_name]
-    practice_lead = get_authenticated_practice_lead(request)
+        # Get the specific capability
+        capability = capabilities[capability_name]
+        practice_lead = get_authenticated_practice_lead(request)
 
-    if not can_manage_capability(practice_lead, capability):
-        raise HTTPException(
-            status_code=403,
-            detail="You do not have permission to manage this practice area"
-        )
+        if not can_manage_capability(practice_lead, capability):
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have permission to manage this practice area"
+            )
 
-    # Validate consultant is registered
-    if email not in capability["consultants"]:
-        raise HTTPException(
-            status_code=400,
-            detail="Consultant is not registered for this capability"
-        )
+        # Validate consultant is registered
+        if email not in capability["consultants"]:
+            raise HTTPException(
+                status_code=400,
+                detail="Consultant is not registered for this capability"
+            )
 
-    # Remove consultant
-    capability["consultants"].remove(email)
-    save_capabilities(capabilities)
+        # Remove consultant
+        capability["consultants"].remove(email)
+        save_capabilities(capabilities)
+
     return {"message": f"Unregistered {email} from {capability_name}"}

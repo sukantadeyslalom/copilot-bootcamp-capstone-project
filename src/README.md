@@ -74,6 +74,8 @@ For local testing, set the password environment variables before starting the ap
 - `export PRACTICELEAD_TECH_PASSWORD='choose-a-strong-password'`
 - `export PRACTICELEAD_STRATEGY_PASSWORD='choose-a-strong-password'`
 
+If those environment variables are missing, practice lead login returns `503` to indicate the server is not configured for authenticated access yet.
+
 Capability and practice lead configuration is loaded from disk on each request, so updates to those JSON files are reflected without restarting the app.
 
 ## Future Enhancements
