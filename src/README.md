@@ -63,6 +63,17 @@ The application uses a consulting-focused data model:
 
 All data is currently stored in memory for this learning exercise. In a production environment, this would be backed by a robust database system.
 
+## Configuration
+
+Capability definitions are stored in `capabilities.json` alongside the API code. Update that file to add or edit capabilities without changing `app.py`.
+
+Practice lead credentials are stored in `practice_leads.json`. The app now requires practice lead authentication before consultants can be removed from a capability.
+
+Demo practice lead accounts for local testing:
+
+- Username: `practicelead-tech` Password: `slalom-tech-lead`
+- Username: `practicelead-strategy` Password: `slalom-strategy-lead`
+
 ## Future Enhancements
 
 This exercise will guide you through implementing:
