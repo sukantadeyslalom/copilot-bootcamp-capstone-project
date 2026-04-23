@@ -45,3 +45,10 @@ __pycache__
 # Runtime-generated app data
 src/audit_log.json
 src/support_requests.json
+
+# Node.js and Playwright test artifacts
+node_modules/
+package-lock.json
+playwright-report/
+test-results/
+.playwright/

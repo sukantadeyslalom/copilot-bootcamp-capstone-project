@@ -1,0 +1,19 @@
+{
+  "name": "slalom-capabilities-management",
+  "version": "1.0.0",
+  "description": "Slalom Capabilities Management System - UI Tests",
+  "type": "module",
+  "scripts": {
+    "test:ui": "playwright test",
+    "test:ui:headed": "playwright test --headed",
+    "test:ui:debug": "playwright test --debug",
+    "test:ui:report": "playwright show-report",
+    "test:ui:install": "playwright install --with-deps chromium"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0"
+  }
+}

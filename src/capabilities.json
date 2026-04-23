@@ -215,7 +215,9 @@
     "capacity": 20,
     "consultants": [
       "charlotte.young@slalom.com",
-      "henry.king@slalom.com"
+      "henry.king@slalom.com",
+      "test.consultant@slalom.com",
+      "duplicate@slalom.com"
     ]
   },
   "Slalom Build": {
