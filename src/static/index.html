@@ -30,6 +30,48 @@
     <main>
       <section id="capabilities-container">
         <h3>Available Capabilities</h3>
+        <div class="discovery-panel">
+          <div class="form-group search-group">
+            <label for="search-capabilities">Search capabilities</label>
+            <input
+              type="search"
+              id="search-capabilities"
+              placeholder="Search by name or description"
+            />
+          </div>
+          <div class="filter-grid">
+            <div class="form-group">
+              <label for="practice-filter">Practice area</label>
+              <select id="practice-filter">
+                <option value="">All practice areas</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="industry-filter">Industry vertical</label>
+              <select id="industry-filter">
+                <option value="">All industries</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="certification-filter">Certification</label>
+              <select id="certification-filter">
+                <option value="">All certifications</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sort-capabilities">Sort by</label>
+              <select id="sort-capabilities">
+                <option value="name">Alphabetical</option>
+                <option value="capacity">Available capacity</option>
+                <option value="team">Team size</option>
+              </select>
+            </div>
+          </div>
+          <div class="discovery-actions">
+            <p id="results-summary" class="results-summary">Loading capabilities...</p>
+            <button id="reset-filters-btn" type="button" class="secondary-btn">Reset filters</button>
+          </div>
+        </div>
         <div id="capabilities-list">
           <!-- Capabilities will be loaded here -->
           <p>Loading capabilities...</p>
@@ -53,6 +95,92 @@
           <button type="submit">Register Expertise</button>
         </form>
         <div id="message" class="hidden"></div>
+      </section>
+
+      <section id="consultant-tools-container">
+        <h3>Consultant Tools</h3>
+        <form id="lookup-form" class="stacked-form">
+          <div class="form-group">
+            <label for="lookup-email">View my registrations</label>
+            <input type="email" id="lookup-email" required placeholder="your-email@slalom.com" />
+          </div>
+          <button type="submit">Load Registrations</button>
+        </form>
+        <div id="lookup-results" class="info-card hidden"></div>
+
+        <form id="support-request-form" class="stacked-form">
+          <div class="form-group">
+            <label for="support-email">Request training or support</label>
+            <input type="email" id="support-email" required placeholder="your-email@slalom.com" />
+          </div>
+          <div class="form-group">
+            <label for="support-capability">Capability</label>
+            <select id="support-capability" required>
+              <option value="">-- Select a capability --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="support-request-type">Request type</label>
+            <select id="support-request-type">
+              <option value="training">Training</option>
+              <option value="staffing">Staffing Support</option>
+              <option value="coaching">Coaching</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="support-note">Notes</label>
+            <textarea id="support-note" rows="4" placeholder="Describe the support you need"></textarea>
+          </div>
+          <button type="submit">Submit Request</button>
+        </form>
+        <div id="support-message" class="hidden"></div>
+      </section>
+
+      <section id="admin-container" class="hidden admin-section">
+        <h3>Practice Lead Workspace</h3>
+        <div id="admin-summary" class="summary-grid"></div>
+
+        <form id="admin-capability-form" class="stacked-form">
+          <div class="form-group">
+            <label for="admin-capability-select">Managed capability</label>
+            <select id="admin-capability-select" required>
+              <option value="">-- Select a managed capability --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="admin-capacity">Available capacity</label>
+            <input type="number" id="admin-capacity" min="0" required />
+          </div>
+          <div class="form-group">
+            <label for="admin-description">Description</label>
+            <textarea id="admin-description" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="admin-certifications">Certifications</label>
+            <input type="text" id="admin-certifications" placeholder="Comma-separated certifications" />
+          </div>
+          <div class="form-group">
+            <label for="admin-industries">Industry verticals</label>
+            <input type="text" id="admin-industries" placeholder="Comma-separated industries" />
+          </div>
+          <div class="form-group">
+            <label for="admin-skill-levels">Skill levels</label>
+            <input type="text" id="admin-skill-levels" placeholder="Comma-separated skill levels" />
+          </div>
+          <button type="submit">Update Capability</button>
+        </form>
+        <div id="admin-message" class="hidden"></div>
+
+        <div class="admin-columns">
+          <div class="info-card">
+            <h4>Recent Activity</h4>
+            <div id="admin-activity-list"></div>
+          </div>
+          <div class="info-card">
+            <h4>Pending Support Requests</h4>
+            <div id="admin-support-list"></div>
+          </div>
+        </div>
       </section>
     </main>
 

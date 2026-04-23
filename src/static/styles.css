@@ -114,6 +114,50 @@ section h3 {
   font-size: 1.4rem;
 }
 
+.discovery-panel {
+  margin-bottom: 20px;
+  padding: 18px;
+  border-radius: 10px;
+  background: #f3f8fe;
+  border: 1px solid #d6e8fb;
+}
+
+.search-group {
+  margin-bottom: 18px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.discovery-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.results-summary {
+  color: #003d7a;
+  font-weight: 600;
+}
+
+.stacked-form {
+  margin-bottom: 22px;
+}
+
+.stacked-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  resize: vertical;
+}
+
 .capability-card {
   margin-bottom: 20px;
   padding: 20px;
@@ -140,6 +184,108 @@ section h3 {
 .capability-card p {
   margin-bottom: 10px;
   line-height: 1.5;
+}
+
+.meta-group {
+  margin-top: 12px;
+}
+
+.meta-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #003d7a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #d9ebff;
+  color: #003d7a;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.tag-chip-muted {
+  background: #eef3f8;
+  color: #48627d;
+}
+
+.empty-state {
+  padding: 28px;
+  border-radius: 10px;
+  background: #f8fbff;
+  border: 1px dashed #9cc2ec;
+  text-align: center;
+}
+
+.empty-state h4 {
+  margin-bottom: 8px;
+  color: #003d7a;
+}
+
+.info-card {
+  padding: 16px;
+  border-radius: 10px;
+  background: #f8fbff;
+  border: 1px solid #d6e8fb;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  padding: 16px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #003d7a, #1f78d1);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-value {
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.summary-label {
+  color: #dceeff;
+}
+
+.admin-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.timeline-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #dce7f2;
+}
+
+.timeline-item:last-child {
+  border-bottom: none;
+}
+
+.timestamp-text {
+  color: #59728c;
+  font-size: 0.9rem;
 }
 
 /* Styles for consultants section */
@@ -384,6 +530,10 @@ footer {
   .auth-panel {
     width: 100%;
     max-width: none;
+  }
+
+  .discovery-actions {
+    align-items: stretch;
   }
   
   .mascot {

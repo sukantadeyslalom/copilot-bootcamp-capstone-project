@@ -31,6 +31,12 @@
 
 </div>
 
+## Project Docs
+
+- [Application README](src/README.md)
+- [Capabilities platform revamp roadmap](docs/revamp-roadmap.md)
+- [Screen structure and user flows](docs/screen-structure.md)
+
 ---
 
 &copy; 2025 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
