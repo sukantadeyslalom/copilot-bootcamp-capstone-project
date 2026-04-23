@@ -9,10 +9,20 @@
   <body>
     <header>
       <div class="header-content">
-        <img src="https://colby-timm.github.io/images/byte-teacher.png" alt="Byte mascot" class="mascot" />
-        <div class="header-text">
-          <h1>Slalom Capabilities Management</h1>
-          <h2>Consulting Expertise Platform</h2>
+        <div class="brand-block">
+          <img src="https://colby-timm.github.io/images/byte-teacher.png" alt="Byte mascot" class="mascot" />
+          <div class="header-text">
+            <h1>Slalom Capabilities Management</h1>
+            <h2>Consulting Expertise Platform</h2>
+          </div>
+        </div>
+        <div class="auth-panel">
+          <p id="auth-status" class="auth-status">Consultant mode</p>
+          <div class="auth-actions">
+            <button id="open-login-btn" type="button" class="secondary-btn">Practice Lead Sign In</button>
+            <button id="logout-btn" type="button" class="secondary-btn hidden">Sign Out</button>
+          </div>
+          <p class="auth-hint">Practice leads can remove consultants from capabilities after signing in.</p>
         </div>
       </div>
     </header>
@@ -45,6 +55,27 @@
         <div id="message" class="hidden"></div>
       </section>
     </main>
+
+    <div id="login-modal" class="modal hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Practice Lead Sign In</h3>
+          <button id="close-login-btn" type="button" class="icon-btn" aria-label="Close sign in dialog">×</button>
+        </div>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" required placeholder="practicelead-tech" />
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" required placeholder="Enter password" />
+          </div>
+          <button type="submit">Sign In</button>
+        </form>
+        <div id="login-message" class="hidden"></div>
+      </div>
+    </div>
 
     <footer>
       <div class="footer-content">

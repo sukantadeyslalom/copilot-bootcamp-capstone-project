@@ -63,6 +63,21 @@ The application uses a consulting-focused data model:
 
 All data is currently stored in memory for this learning exercise. In a production environment, this would be backed by a robust database system.
 
+## Configuration
+
+Capability definitions are stored in `capabilities.json` alongside the API code. Update that file to add or edit capabilities without changing `app.py`.
+
+Practice lead identities are stored in `practice_leads.json`. Passwords are read from environment variables named in that file, so secrets do not need to be committed to the repository.
+
+For local testing, set the password environment variables before starting the app. Example:
+
+- `export PRACTICELEAD_TECH_PASSWORD='choose-a-strong-password'`
+- `export PRACTICELEAD_STRATEGY_PASSWORD='choose-a-strong-password'`
+
+If those environment variables are missing, practice lead login returns `503` to indicate the server is not configured for authenticated access yet.
+
+Capability and practice lead configuration is loaded from disk on each request, so updates to those JSON files are reflected without restarting the app.
+
 ## Future Enhancements
 
 This exercise will guide you through implementing:

@@ -1,0 +1,17 @@
+{
+  "practicelead-tech": {
+    "password_env_var": "PRACTICELEAD_TECH_PASSWORD",
+    "role": "Practice Lead",
+    "practice_areas": [
+      "Technology"
+    ]
+  },
+  "practicelead-strategy": {
+    "password_env_var": "PRACTICELEAD_STRATEGY_PASSWORD",
+    "role": "Practice Lead",
+    "practice_areas": [
+      "Strategy",
+      "Operations"
+    ]
+  }
+}
