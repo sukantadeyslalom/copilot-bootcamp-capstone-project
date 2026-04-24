@@ -549,3 +549,184 @@ footer {
     font-size: 1rem;
   }
 }
+
+/* Enhanced Search Autocomplete */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.search-suggestions.hidden {
+  display: none;
+}
+
+.suggestion-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+  background-color: #f0f5ff;
+}
+
+.suggestion-item-name {
+  font-weight: 600;
+  color: #003d7a;
+  margin-bottom: 4px;
+}
+
+.suggestion-item-description {
+  font-size: 0.9em;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion-item-meta {
+  font-size: 0.85em;
+  color: #999;
+  margin-top: 4px;
+}
+
+.highlight {
+  background-color: #ffd700;
+  font-weight: 600;
+  padding: 1px 2px;
+  border-radius: 2px;
+}
+
+/* Filter Chips */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 0;
+  align-items: center;
+}
+
+.filter-chips.hidden {
+  display: none;
+}
+
+.filter-chips-label {
+  font-weight: 600;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #e3f2fd;
+  color: #003d7a;
+  border-radius: 16px;
+  font-size: 0.9em;
+  font-weight: 500;
+  border: 1px solid #90caf9;
+  transition: all 0.2s;
+}
+
+.filter-chip:hover {
+  background-color: #bbdefb;
+  border-color: #64b5f6;
+}
+
+.filter-chip-remove {
+  background: none;
+  border: none;
+  color: #003d7a;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.filter-chip-remove:hover {
+  color: #d32f2f;
+}
+
+.filter-chip.search-chip {
+  background-color: #fff3e0;
+  border-color: #ffb74d;
+  color: #e65100;
+}
+
+.filter-chip.search-chip .filter-chip-remove {
+  color: #e65100;
+}
+
+.filter-chip-clear-all {
+  background: none;
+  border: 1px solid #ccc;
+  color: #666;
+  padding: 6px 12px;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.filter-chip-clear-all:hover {
+  background-color: #f5f5f5;
+  border-color: #999;
+  color: #333;
+}
+
+/* Keyboard Navigation */
+.search-wrapper input:focus {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* Loading State */
+.search-loading {
+  padding: 16px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
+
+/* No Results */
+.search-no-results {
+  padding: 16px;
+  text-align: center;
+  color: #666;
+}
+
+.search-no-results-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.search-no-results-suggestion {
+  font-size: 0.9em;
+  color: #999;
+}
