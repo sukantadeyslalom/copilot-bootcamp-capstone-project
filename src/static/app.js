@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const adminActivityList = document.getElementById("admin-activity-list");
   const adminSupportList = document.getElementById("admin-support-list");
   const searchInput = document.getElementById("search-capabilities");
+  const searchSuggestions = document.getElementById("search-suggestions");
+  const activeFiltersContainer = document.getElementById("active-filters");
   const practiceFilter = document.getElementById("practice-filter");
   const industryFilter = document.getElementById("industry-filter");
   const certificationFilter = document.getElementById("certification-filter");
@@ -37,6 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentUser = null;
   let capabilitiesData = {};
+  let searchDebounceTimer = null;
+  let selectedSuggestionIndex = -1;
 
   function showMessage(target, text, type) {
     target.textContent = text;
@@ -181,6 +185,267 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     return filteredEntries;
+  }
+
+  // Enhanced Search Functions
+
+  function highlightText(text, searchTerm) {
+    if (!searchTerm) return text;
+    const regex = new RegExp(`(${searchTerm})`, 'gi');
+    return text.replace(regex, '<span class="highlight">$1</span>');
+  }
+
+  function getSearchSuggestions(searchTerm) {
+    if (!searchTerm || searchTerm.length < 2) {
+      return [];
+    }
+
+    const term = searchTerm.toLowerCase();
+    const suggestions = [];
+
+    Object.entries(capabilitiesData).forEach(([name, details]) => {
+      let score = 0;
+      let matchType = '';
+
+      // Exact name match (highest priority)
+      if (name.toLowerCase() === term) {
+        score = 100;
+        matchType = 'Exact match';
+      }
+      // Name starts with search term
+      else if (name.toLowerCase().startsWith(term)) {
+        score = 90;
+        matchType = 'Capability name';
+      }
+      // Name contains search term
+      else if (name.toLowerCase().includes(term)) {
+        score = 70;
+        matchType = 'Capability name';
+      }
+      // Description contains search term
+      else if (details.description?.toLowerCase().includes(term)) {
+        score = 50;
+        matchType = 'Description';
+      }
+      // Tags contain search term
+      else if (details.tags?.some(tag => tag.toLowerCase().includes(term))) {
+        score = 40;
+        matchType = 'Tag';
+      }
+      // Practice area match
+      else if (details.practice_area?.toLowerCase().includes(term)) {
+        score = 30;
+        matchType = 'Practice area';
+      }
+
+      if (score > 0) {
+        suggestions.push({
+          name,
+          description: details.description,
+          practiceArea: details.practice_area,
+          matchType,
+          score
+        });
+      }
+    });
+
+    // Sort by score (highest first) and limit to top 8
+    return suggestions
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 8);
+  }
+
+  function showSearchSuggestions(searchTerm) {
+    const suggestions = getSearchSuggestions(searchTerm);
+    
+    if (suggestions.length === 0) {
+      hideSearchSuggestions();
+      return;
+    }
+
+    searchSuggestions.innerHTML = suggestions
+      .map((suggestion, index) => `
+        <div class="suggestion-item" data-index="${index}" data-name="${suggestion.name}">
+          <div class="suggestion-item-name">${highlightText(suggestion.name, searchTerm)}</div>
+          <div class="suggestion-item-description">${highlightText(suggestion.description || 'No description', searchTerm)}</div>
+          <div class="suggestion-item-meta">${suggestion.practiceArea} · ${suggestion.matchType}</div>
+        </div>
+      `)
+      .join('');
+
+    searchSuggestions.classList.remove('hidden');
+    selectedSuggestionIndex = -1;
+  }
+
+  function hideSearchSuggestions() {
+    searchSuggestions.classList.add('hidden');
+    searchSuggestions.innerHTML = '';
+    selectedSuggestionIndex = -1;
+  }
+
+  function selectSuggestion(suggestionName) {
+    searchInput.value = suggestionName;
+    hideSearchSuggestions();
+    updateFiltersAndResults();
+  }
+
+  function navigateSuggestions(direction) {
+    const items = searchSuggestions.querySelectorAll('.suggestion-item');
+    if (items.length === 0) return;
+
+    // Remove active class from current
+    if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < items.length) {
+      items[selectedSuggestionIndex].classList.remove('active');
+    }
+
+    // Update index
+    if (direction === 'down') {
+      selectedSuggestionIndex = (selectedSuggestionIndex + 1) % items.length;
+    } else if (direction === 'up') {
+      selectedSuggestionIndex = selectedSuggestionIndex <= 0 
+        ? items.length - 1 
+        : selectedSuggestionIndex - 1;
+    }
+
+    // Add active class to new selection
+    if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < items.length) {
+      items[selectedSuggestionIndex].classList.add('active');
+      items[selectedSuggestionIndex].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function getActiveFilters() {
+    const filters = [];
+    
+    if (searchInput.value.trim()) {
+      filters.push({ type: 'search', value: searchInput.value.trim(), label: `Search: "${searchInput.value.trim()}"` });
+    }
+    
+    if (practiceFilter.value) {
+      filters.push({ type: 'practice', value: practiceFilter.value, label: `Practice: ${practiceFilter.value}` });
+    }
+    
+    if (industryFilter.value) {
+      filters.push({ type: 'industry', value: industryFilter.value, label: `Industry: ${industryFilter.value}` });
+    }
+    
+    if (certificationFilter.value) {
+      filters.push({ type: 'certification', value: certificationFilter.value, label: `Certification: ${certificationFilter.value}` });
+    }
+    
+    return filters;
+  }
+
+  function renderFilterChips() {
+    const filters = getActiveFilters();
+    
+    if (filters.length === 0) {
+      activeFiltersContainer.classList.add('hidden');
+      return;
+    }
+
+    const chipsHTML = filters.map(filter => `
+      <div class="filter-chip ${filter.type === 'search' ? 'search-chip' : ''}">
+        ${filter.label}
+        <button class="filter-chip-remove" data-filter-type="${filter.type}" title="Remove filter">×</button>
+      </div>
+    `).join('');
+
+    activeFiltersContainer.innerHTML = `
+      <span class="filter-chips-label">Active filters:</span>
+      ${chipsHTML}
+      <button class="filter-chip-clear-all">Clear all</button>
+    `;
+    
+    activeFiltersContainer.classList.remove('hidden');
+  }
+
+  function removeFilter(filterType) {
+    switch (filterType) {
+      case 'search':
+        searchInput.value = '';
+        break;
+      case 'practice':
+        practiceFilter.value = '';
+        break;
+      case 'industry':
+        industryFilter.value = '';
+        break;
+      case 'certification':
+        certificationFilter.value = '';
+        break;
+    }
+    updateFiltersAndResults();
+  }
+
+  function clearAllFilters() {
+    searchInput.value = '';
+    practiceFilter.value = '';
+    industryFilter.value = '';
+    certificationFilter.value = '';
+    sortSelect.value = 'name';
+    updateFiltersAndResults();
+  }
+
+  // URL State Management
+
+  function updateURLState() {
+    const params = new URLSearchParams();
+    
+    if (searchInput.value.trim()) {
+      params.set('search', searchInput.value.trim());
+    }
+    
+    if (practiceFilter.value) {
+      params.set('practice', practiceFilter.value);
+    }
+    
+    if (industryFilter.value) {
+      params.set('industry', industryFilter.value);
+    }
+    
+    if (certificationFilter.value) {
+      params.set('certification', certificationFilter.value);
+    }
+    
+    if (sortSelect.value && sortSelect.value !== 'name') {
+      params.set('sort', sortSelect.value);
+    }
+    
+    const queryString = params.toString();
+    const newURL = queryString ? `${window.location.pathname}?${queryString}` : window.location.pathname;
+    
+    window.history.replaceState({}, '', newURL);
+  }
+
+  function loadURLState() {
+    const params = new URLSearchParams(window.location.search);
+    
+    if (params.has('search')) {
+      searchInput.value = params.get('search');
+    }
+    
+    if (params.has('practice')) {
+      practiceFilter.value = params.get('practice');
+    }
+    
+    if (params.has('industry')) {
+      industryFilter.value = params.get('industry');
+    }
+    
+    if (params.has('certification')) {
+      certificationFilter.value = params.get('certification');
+    }
+    
+    if (params.has('sort')) {
+      sortSelect.value = params.get('sort');
+    }
+  }
+
+  function updateFiltersAndResults() {
+    renderFilterChips();
+    updateURLState();
+    renderCapabilities();
   }
 
   function getManagedCapabilityNames() {
@@ -659,24 +924,98 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  [searchInput, practiceFilter, industryFilter, certificationFilter, sortSelect].forEach((control) => {
-    control.addEventListener("input", renderCapabilities);
-    control.addEventListener("change", renderCapabilities);
+  // Enhanced Search with Autocomplete
+  searchInput.addEventListener("input", (event) => {
+    const searchTerm = event.target.value.trim();
+    
+    // Clear existing debounce timer
+    if (searchDebounceTimer) {
+      clearTimeout(searchDebounceTimer);
+    }
+    
+    // Show suggestions immediately for better UX
+    if (searchTerm.length >= 2) {
+      showSearchSuggestions(searchTerm);
+    } else {
+      hideSearchSuggestions();
+    }
+    
+    // Debounce the actual filtering
+    searchDebounceTimer = setTimeout(() => {
+      updateFiltersAndResults();
+    }, 300);
   });
 
-  resetFiltersButton.addEventListener("click", () => {
-    searchInput.value = "";
-    practiceFilter.value = "";
-    industryFilter.value = "";
-    certificationFilter.value = "";
-    sortSelect.value = "name";
-    renderCapabilities();
+  // Keyboard navigation for suggestions
+  searchInput.addEventListener("keydown", (event) => {
+    const suggestionsVisible = !searchSuggestions.classList.contains('hidden');
+    
+    if (!suggestionsVisible) return;
+    
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        navigateSuggestions('down');
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        navigateSuggestions('up');
+        break;
+      case 'Enter':
+        event.preventDefault();
+        const activeItem = searchSuggestions.querySelector('.suggestion-item.active');
+        if (activeItem) {
+          selectSuggestion(activeItem.dataset.name);
+        } else {
+          hideSearchSuggestions();
+          updateFiltersAndResults();
+        }
+        break;
+      case 'Escape':
+        hideSearchSuggestions();
+        break;
+    }
   });
+
+  // Click on suggestion
+  searchSuggestions.addEventListener("click", (event) => {
+    const suggestionItem = event.target.closest('.suggestion-item');
+    if (suggestionItem) {
+      selectSuggestion(suggestionItem.dataset.name);
+    }
+  });
+
+  // Hide suggestions when clicking outside
+  document.addEventListener("click", (event) => {
+    if (!event.target.closest('.search-wrapper')) {
+      hideSearchSuggestions();
+    }
+  });
+
+  // Filter changes with chips
+  [practiceFilter, industryFilter, certificationFilter, sortSelect].forEach((control) => {
+    control.addEventListener("change", updateFiltersAndResults);
+  });
+
+  // Filter chip removal
+  activeFiltersContainer.addEventListener("click", (event) => {
+    if (event.target.classList.contains('filter-chip-remove')) {
+      const filterType = event.target.dataset.filterType;
+      removeFilter(filterType);
+    } else if (event.target.classList.contains('filter-chip-clear-all')) {
+      clearAllFilters();
+    }
+  });
+
+  // Reset filters button
+  resetFiltersButton.addEventListener("click", clearAllFilters);
 
   // Initialize app
   async function initializeApp() {
     await refreshAuthSession();
     await fetchCapabilities();
+    loadURLState(); // Load filters from URL
+    renderFilterChips(); // Render initial filter chips
     await refreshAdminOverview();
   }
 

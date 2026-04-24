@@ -33,12 +33,17 @@
         <div class="discovery-panel">
           <div class="form-group search-group">
             <label for="search-capabilities">Search capabilities</label>
-            <input
-              type="search"
-              id="search-capabilities"
-              placeholder="Search by name or description"
-            />
+            <div class="search-wrapper">
+              <input
+                type="search"
+                id="search-capabilities"
+                placeholder="Search by name, description, or tags..."
+                autocomplete="off"
+              />
+              <div id="search-suggestions" class="search-suggestions hidden"></div>
+            </div>
           </div>
+          <div id="active-filters" class="filter-chips hidden"></div>
           <div class="filter-grid">
             <div class="form-group">
               <label for="practice-filter">Practice area</label>
